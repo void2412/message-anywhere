@@ -8,7 +8,8 @@ const userSchema = new Schema({
 		unique: true,
 		trim: true,
 		match: [/^[a-zA-Z0-9.! #$%&'*+/=? ^_`{|}~-]+@[a-zA-Z0-9-]+(?:\. [a-zA-Z0-9-]+)*$/, 'Please enter a valid email address'],
-		index: true
+		index: true,
+		lowercase: true
 	},
 	password:{
 		type: String,
@@ -19,9 +20,9 @@ const userSchema = new Schema({
 		type: Schema.Types.ObjectId,
 		ref: 'User'
 	}],
-	messages:[{
+	conversation:[{
 		type:Schema.Types.ObjectId,
-		ref: 'Message'
+		ref: 'Conversation'
 	}]
 },
 
