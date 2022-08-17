@@ -11,9 +11,11 @@ const messageSchema = new Schema({
 },
 {
 	timestamps: true,
+	toJSON: {
+		getters: true
+	}
 }
 )
 
-const Message = model('Message', messageSchema)
 
-module.exports = Message
+module.exports = messageSchema
