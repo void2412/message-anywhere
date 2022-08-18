@@ -6,7 +6,8 @@ const conversationSchema = new Schema({
 	messages: [messageSchema],
 	members:[{
 		type: Schema.Types.ObjectId,
-		required: true
+		required: true,
+		ref: 'User'
 	}]
 },
 {
