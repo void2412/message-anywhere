@@ -16,11 +16,15 @@ const userSchema = new Schema({
 		require: true,
 		minLength: 8
 	},
+	name:{
+		type: String,
+		require: true
+	},
 	contacts:[{
 		type: Schema.Types.ObjectId,
 		ref: 'User'
 	}],
-	conversation:[{
+	conversations:[{
 		type:Schema.Types.ObjectId,
 		ref: 'Conversation'
 	}]

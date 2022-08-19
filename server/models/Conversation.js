@@ -1,9 +1,12 @@
 const { Schema, model } = require('mongoose')
-const messageSchema = require('./Message')
+
 
 
 const conversationSchema = new Schema({
-	messages: [messageSchema],
+	messages: [{
+		type: Schema.Types.ObjectId,
+		ref: 'Message'
+	}],
 	members:[{
 		type: Schema.Types.ObjectId,
 		required: true,

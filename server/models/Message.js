@@ -3,10 +3,17 @@ const { Schema, model } = require('mongoose')
 const messageSchema = new Schema({
 	user:{
 		type: Schema.Types.ObjectId,
-		ref: 'User'
+		ref: 'User',
+		required: true
+	},
+	conversation:{
+		type: Schema.Types.ObjectId,
+		ref: 'Conversation',
+		required: true
 	},
 	text:{
-		type: String
+		type: String,
+		required: true
 	}
 },
 {
@@ -16,6 +23,6 @@ const messageSchema = new Schema({
 	}
 }
 )
+const Message = model('Message', messageSchema)
 
-
-module.exports = messageSchema
+module.exports = Message
