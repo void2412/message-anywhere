@@ -12,7 +12,7 @@ const typeDefs = gql`
 
 	type Conversation {
 		_id: ID
-		messages: [Messages]
+		messages: [Message]
 		members: [User]!
 	}
 
@@ -32,7 +32,7 @@ const typeDefs = gql`
 		User(userId: ID!): User
 		me: User
 		conversations: Conversation
-		messages(conversationId: ID!): Messages
+		messages(conversationId: ID!): Message
 	}
 
 	type Mutation {
