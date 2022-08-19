@@ -63,6 +63,7 @@ const resolvers = {
 
 		addConversation: async (parent, {members}, context) =>{
 			if(context.user){
+				members.push(context.user._id)
 				return Conversation.create({members: members})
 			}
 			throw new AuthenticationError('You must be logged in')
