@@ -5,19 +5,25 @@ const { User, Conversation, Message } = require('../models');
 const resolvers = {
 	Query:{
 		User: async (parent, {userId})=>{
-			return User.findById(userId)
+			return await User.findById(userId)
 		},
 		
 		me: async (parent, args, context)=>{
 			if(context.user){
-				return User.findById(context.user._id)
+				let userMe = await User.findById(context.user._id)
+				return userMe
 			}
 			throw new AuthenticationError('You must be logged in')
 		},
 
 		conversations: async (parent, args, context) =>{
 			if(context.user){
-				return Conversation.find({members: context.user._id})
+				if(context.user.conversations && context.user.conversations.length > 0){
+					return Conversation.find({members: context.user._id})
+				}
+				else{
+					return null
+				}
 			}
 
 			throw new AuthenticationError('You must be logged in')
@@ -32,7 +38,8 @@ const resolvers = {
 
 	Mutation: {
 		addUser: async (parent, {name, email, password}) =>{
-			const user = await User.create({name, email, password})
+			const userAdded = await User.create({name, email, password})
+			const user = await User.findById(userAdded._id)
 			const token = signToken
 			return {token, user}
 		},
@@ -121,11 +128,12 @@ const resolvers = {
 
 		addContact: async (parent, {userId}, context) =>{
 			if(context.user){
-				return User.findByIdAndUpdate(
+				let usereditted = await User.findByIdAndUpdate(
 					context.user._id,
 					{$addToSet: {contacts: userId}},
 					{new: true}
 					)
+				return usereditted
 			}
 
 			throw new AuthenticationError('You must be logged in')

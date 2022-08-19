@@ -6,8 +6,8 @@ const typeDefs = gql`
 		email: String
 		password: String
 		name: String
-		conversations: [Conversation]
-		contacts: [User]
+		conversations: [Conversation]!
+		contacts: [User]!
 	}
 
 	type Conversation {
@@ -25,7 +25,7 @@ const typeDefs = gql`
 
 	type Auth {
 		token: ID!
-		User: User
+		user: User
 	}
 
 	type Query {
