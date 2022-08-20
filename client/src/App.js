@@ -7,7 +7,13 @@ import {
 	createHttpLink,
 } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import Container from 'react-bootstrap/Container';
 
+import Homepage from './pages/Homepage'
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import NotFound from './pages/NotFound'
+// import Message from './pages/Message'
 import NavbarComponent from './components/Navbar'
 
 const httpLink = createHttpLink({
@@ -33,9 +39,16 @@ function App() {
   return (
 	<ApolloProvider client={client}>
 		<Router>
-			<>
-				<NavbarComponent />
-			</>
+			<NavbarComponent />
+			<Container>
+				<Routes>
+					<Route path='/' element={<Homepage />}/>
+					{/* <Route path='/messages' element={<Message/>}/> */}
+					<Route path='/login' element ={<Login/>}/>
+					<Route path="/signup" element={<Signup/>}/>
+					<Route path="*"element={<NotFound />}/>
+				</Routes>
+			</Container>
 		</Router>
 	</ApolloProvider>
   );
