@@ -151,6 +151,33 @@ const resolvers = {
 
 			throw new AuthenticationError('You must be logged in')
 		}
+	},
+
+	User: {
+		conversations: async (parent)=>{
+			return await Conversation.find({_id: {$in: parent.conversations}})
+		},
+		contacts: async (parent)=>{
+			return await User.find({_id: {$in: parent.contacts}})
+		}
+	},
+
+	Conversation: {
+		messages:  async (parent)=>{
+			return await Message.find({_id: {$in: parent.messages}})
+		},
+		members: async (parent)=>{
+			return await User.find({_id: {$in: parent.members}})
+		}
+	},
+
+	Message: {
+		user: async (parent)=>{
+			return await User.findById(parent.user)
+		},
+		conversation: async (parent)=>{
+			return await Conversation.findById(parent.conversation)
+		}
 	}
 }
 
