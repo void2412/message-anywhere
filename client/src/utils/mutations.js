@@ -25,3 +25,30 @@ mutation AddUser($name: String!, $email: String!, $password: String!){
 	}
 }
 `
+
+export const addContact = gql`
+`
+
+export const removeContact = gql`
+
+`
+
+export const addConversation = gql`
+
+`
+
+export const removeConversationFromUser = gql`
+
+`
+
+export const addMessage = gql`
+
+`
+
+export const removeMessage = gql`
+
+`
+
+export const editMessage = gql`
+
+`
