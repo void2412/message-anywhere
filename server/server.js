@@ -3,7 +3,7 @@ const {ApolloServer} = require('apollo-server-express');
 const path = require('path');
 const {authMiddleware} = require('./utils/auth')
 
-
+const {PubSub} = require('graphql-subscriptions')
 const { createServer } = require('http')
 const {
   ApolloServerPluginDrainHttpServer,
@@ -34,7 +34,7 @@ app.get('/',(req, res) => {
 const httpServer = createServer(app)
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
-
+const pubsub = new PubSub()
 const server = new ApolloServer({
 	schema,
 	csrfPrevention: true,
@@ -51,7 +51,7 @@ const server = new ApolloServer({
 			},
 		  }
 	],
-	context: authMiddleware
+	context: {authMiddleware, pubsub}
 })
 
 

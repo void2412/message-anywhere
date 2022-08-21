@@ -8,31 +8,31 @@ const resolvers = {
 			return User.findById(userId)
 		},
 		
-		me: async (parent, args, context)=>{
-			if(context.user){
-				return User.findOne({_id: context.user._id})
+		me: async (parent, args, {authMiddleware, pubsub})=>{
+			if(authMiddleware.user){
+				return User.findOne({_id: authMiddleware.user._id})
 			}
 			throw new AuthenticationError('You must be logged in')
 		},
 
-		conversations: async (parent, args, context) =>{
-			if(context.user){
-				return Conversation.find({members: context.user._id})
+	conversations: async (parent, args, {authMiddleware, pubsub}) =>{
+			if(authMiddleware.user){
+				return Conversation.find({members: authMiddleware.user._id})
 			}
 
 			throw new AuthenticationError('You must be logged in')
 		},
 
-		conversation: async (parent, {conversationId}, context)=>{
-			if(context.user){
+		conversation: async (parent, {conversationId}, {authMiddleware, pubsub})=>{
+			if(authMiddleware.user){
 				return Conversation.findOne({_id: conversationId})
 			}
 
 			throw new AuthenticationError('You must be logged in')
 		},
 		
-		messages: async (parent, {conversationId}, context) => {
-			if (context.user){
+		messages: async (parent, {conversationId}, {authMiddleware, pubsub}) => {
+			if (authMiddleware.user){
 				return Message.find({conversation: conversationId})
 			}
 			throw new AuthenticationError('You must be logged in')
@@ -64,9 +64,9 @@ const resolvers = {
 			return {token, user}
 		},
 
-		addConversation: async (parent, {members}, context) =>{
-			if(context.user){
-				members.push(context.user._id)
+		addConversation: async (parent, {members}, {authMiddleware, pubsub}) =>{
+			if(authMiddleware.user){
+				members.push(authMiddleware.user._id)
 				let check = await Conversation.findOne({members: members})
 				if (check){
 					return check
@@ -78,10 +78,10 @@ const resolvers = {
 			throw new AuthenticationError('You must be logged in')
 		},
 
-		addMessage: async (parent, args, context) => {
-			if(context.user){
+		addMessage: async (parent, args, {authMiddleware, pubsub}) => {
+			if(authMiddleware.user){
 				let messageAdded = await Message.create({
-					user: context.user._id,
+					user: authMiddleware.user._id,
 					conversation: args.conversationId,
 					text: args.text
 				})
@@ -98,8 +98,8 @@ const resolvers = {
 			throw new AuthenticationError('You must be logged in')
 		},
 
-		removeMessage: async (parent, {messageId}, context) => {
-			if(context.user){
+		removeMessage: async (parent, {messageId}, {authMiddleware, pubsub}) => {
+			if(authMiddleware.user){
 				let messageDeleted = await Message.findByIdAndDelete(messageId)
 				return Conversation.findOneAndUpdate(
 					{_id: messageDeleted.conversation},
@@ -111,8 +111,8 @@ const resolvers = {
 			throw new AuthenticationError('You must be logged in')
 		},
 
-		editMessage: async (parent, {messageId, text}, context) =>{
-			if(context.user){
+		editMessage: async (parent, {messageId, text}, {authMiddleware, pubsub}) =>{
+			if(authMiddleware.user){
 				let messageEditted = await Message.findByIdAndUpdate(
 					{_id: messageId},
 					{text: text},
@@ -124,12 +124,12 @@ const resolvers = {
 			throw new AuthenticationError('You must be logged in')
 		},
 
-		addContact: async (parent, {email}, context) =>{
-			if(context.user){
+		addContact: async (parent, {email}, {authMiddleware, pubsub}) =>{
+			if(authMiddleware.user){
 				let contactAdded = await User.find({email: email})
 				console.log(contactAdded)
 				let usereditted = await User.findOneAndUpdate(
-					{_id: context.user._id},
+					{_id: authMiddleware.user._id},
 					{$addToSet: {contacts: contactAdded[0]._id}},
 					{new: true, runValidators: true}
 					)
@@ -140,10 +140,10 @@ const resolvers = {
 			throw new AuthenticationError('You must be logged in')
 		},
 
-		removeContact: async(parent, {userId}, context) =>{
-			if(context.user){
+		removeContact: async(parent, {userId}, {authMiddleware, pubsub}) =>{
+			if(authMiddleware.user){
 				return User.findByIdAndUpdate(
-					context.user._id,
+					authMiddleware.user._id,
 					{$pull: {contacts: userId}},
 					{new: true}
 				)
