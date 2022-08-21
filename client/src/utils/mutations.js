@@ -73,7 +73,7 @@ mutation AddContact($userId: ID!) {
 `
 
 export const ADD_CONVERSATION = gql`
-mutation AddConversation($members: [ID]!) {
+mutation AddConversation($members: [String]!) {
   addConversation(members: $members) {
     _id
     messages {
@@ -93,20 +93,6 @@ mutation AddConversation($members: [ID]!) {
   }
 }
 `
-
-export const REMOVE_CONVERSATION_USER = gql`
-mutation AddConversation($conversationId: ID!) {
-  removeConversationFromUser(conversationId: $conversationId) {
-    _id
-    email
-    name
-    conversations {
-      _id
-    }
-  }
-}
-`
-
 export const ADD_MESSAGE = gql`
 mutation AddMessage($conversationId: ID!, $text: String!) {
   addMessage(conversationId: $conversationId, text: $text) {

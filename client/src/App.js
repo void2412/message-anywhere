@@ -14,7 +14,7 @@ import Friend from './pages/Friend'
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import NotFound from './pages/NotFound'
-// import Message from './pages/Message'
+import Message from './pages/Message'
 import NavbarComponent from './components/Navbar'
 
 const httpLink = createHttpLink({
@@ -44,7 +44,7 @@ function App() {
 			<Container>
 				<Routes>
 					<Route path='/' element={<Homepage />}/>
-					{/* <Route path='/messages' element={<Message/>}/> */}
+					<Route path='/messages' element={<Message/>}/>
 					<Route path='/friends' element={<Friend />}/>
 					<Route path='/login' element ={<Login/>}/>
 					<Route path="/signup" element={<Signup/>}/>

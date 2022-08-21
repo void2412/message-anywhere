@@ -16,9 +16,6 @@ query Me {
     _id
     name
     email
-    conversations {
-      _id
-    }
     contacts {
       _id
       name
@@ -35,6 +32,7 @@ query Conversations {
     members {
       _id
       name
+      email
     }
   }
 }

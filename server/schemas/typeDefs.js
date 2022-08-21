@@ -6,7 +6,6 @@ const typeDefs = gql`
 		email: String
 		password: String
 		name: String
-		conversations: [Conversation]
 		contacts: [User]
 	}
 
@@ -31,7 +30,8 @@ const typeDefs = gql`
 	type Query {
 		User(userId: ID!): User
 		me: User
-		conversations: Conversation
+		conversations: [Conversation]
+		conversation(conversationId: ID!): Conversation
 		messages(conversationId: ID!): [Message]
 	}
 
@@ -39,7 +39,6 @@ const typeDefs = gql`
 		addUser(name: String!, email: String!, password: String!): Auth
 		login(email: String!, password: String!): Auth
 		addConversation(members: [ID]!): Conversation
-		removeConversationFromUser(conversationId: ID!): User
 		addMessage(conversationId: ID!, text: String!): Conversation
 		removeMessage(messageId: ID!): Conversation
 		editMessage(messageId: ID!, text: String!): Conversation

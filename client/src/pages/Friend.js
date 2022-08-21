@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react'
+import React, {useState} from 'react'
 import {useMutation, useQuery} from '@apollo/client'
-import {QUERY_USER, QUERY_ME} from '../utils/queries'
+import {QUERY_ME} from '../utils/queries'
 import {ADD_CONTACT, REMOVE_CONTACT} from '../utils/mutations'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row';
@@ -10,8 +10,6 @@ import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Auth from '../utils/auth';
-import CardHeader from 'react-bootstrap/esm/CardHeader'
-
 const Friend = () => {
 	const token = Auth.getToken()||false
 	if(!token||Auth.isTokenExpired(token)){
@@ -22,7 +20,6 @@ const Friend = () => {
 	const [removeContact] = useMutation(REMOVE_CONTACT)
 	const [addContact] = useMutation(ADD_CONTACT)
 	const userData= data?.me||{}
-
 	const[currentContact, setCurrentContact] = useState('')
 
 	const handleInputChange = (e)=>{
@@ -70,10 +67,11 @@ const Friend = () => {
 				{userData.contacts.map((contact, index)=>{
 					return (
 						<Col key={index} sm={12} md={6} lg={4}>
-							<Card className='mb-2 text-center'>
+							<Card className='mb-2'>
 								<Card.Body>
 									<Card.Title>{contact.name}</Card.Title>
 									<Card.Text>{contact.email}</Card.Text>
+									<Button variants="primary" className='me-2'>Start Chat</Button>
 									<Button variants="danger" onClick={handleRemoveContact} data-id={contact._id}>Remove Friend</Button>
 								</Card.Body>
 							</Card>

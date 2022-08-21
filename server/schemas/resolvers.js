@@ -17,12 +17,15 @@ const resolvers = {
 
 		conversations: async (parent, args, context) =>{
 			if(context.user){
-				if(context.user.conversations && context.user.conversations.length > 0){
-					return Conversation.find({members: context.user._id})
-				}
-				else{
-					return null
-				}
+				return Conversation.find({members: context.user._id})
+			}
+
+			throw new AuthenticationError('You must be logged in')
+		},
+
+		conversation: async (parent, {conversationId}, context)=>{
+			if(context.user){
+				return Conversation.findOne({_id: conversationId})
 			}
 
 			throw new AuthenticationError('You must be logged in')
@@ -63,21 +66,14 @@ const resolvers = {
 
 		addConversation: async (parent, {members}, context) =>{
 			if(context.user){
-				members.push(context.user._id)
-				return Conversation.create({members: members})
-			}
-			throw new AuthenticationError('You must be logged in')
-		},
+				let check = await Conversation.findOne({members: members})
+				if (check){
+					return check
+				}
 
-		removeConversationFromUser: async (parent, {conversationId}, context) =>{
-			if(context.user){
-				return User.findOneAndUpdate(
-					{_id: context.user._id},
-					{$pull: {conversations: conversationId}},
-					{new: true}
-				)
+				let conversationCreated = await Conversation.create({members: members})
+				return conversationCreated
 			}
-
 			throw new AuthenticationError('You must be logged in')
 		},
 
@@ -157,9 +153,6 @@ const resolvers = {
 	},
 
 	User: {
-		conversations: async (parent)=>{
-			return await Conversation.find({_id: {$in: parent.conversations}})
-		},
 		contacts: async (parent)=>{
 			return await User.find({_id: {$in: parent.contacts}})
 		}
