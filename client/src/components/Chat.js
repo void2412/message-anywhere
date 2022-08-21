@@ -18,17 +18,32 @@ const Chat = (props)=> {
 		variables: {conversationId: props.conversationId}
 	})
 	const {loading: meLoading, error: meError, data: meData} = useQuery(QUERY_ME)
+	const [addMessage] = useMutation(ADD_MESSAGE)
 
 	if(meLoading){
 		return (<>Loading User Data ...</>)
 	}
-	console.log(messageData)
 	const userId = meData?.me._id || null
 	const handleClick = (e)=>{
-
+		e.preventDefault()
+		const input= document.querySelector('#inputMessage')
+		const currentTextMessage = input.value.trim()
+		if (currentTextMessage != ''){
+			try{
+				const {data} = addMessage({
+					variables: {
+						conversationId: props.conversationId,
+						text: currentTextMessage
+					}
+				})
+				input.value = ''
+			}
+			catch(err){
+				console.error(err)
+			}
+		}
 	}
 
-	
 
 	return (<Form>
 		<div className="form-control mb-3">
@@ -40,17 +55,40 @@ const Chat = (props)=> {
 				const id = message.user._id
 				const text = message.text
 				if (id === userId){
-					return (<div key={id} data-id={id} className="text-end">{text}</div>)
+					return (<div key={message._id} data-id={message._id} className="mb-2" style={{
+						display: 'flex',
+						alignItems: 'end',
+						justifyContent: "end",
+					}}>
+						<div className="p-3" style={{
+							background: "#58bf56",
+							borderRadius: "15px",
+							maxWidth: "60%"
+						}}>
+							{text}
+						</div>
+					</div>)
 				}
 				else{
-					return(<div key={id} data-id={id} className="text-start">{text}</div>)
+					return(<div key={message._id} data-id={message._id} className="mb-2" style={{
+						display: 'flex',
+						justifyContent: "start"
+					}}>
+						<div className="p-3" style={{
+							background: "#e5e6ea",
+							borderRadius: "15px",
+							maxWidth: "60%"
+						}}>
+							{text}
+						</div>						
+					</div>)
 				}
 			})}
 			</div>)}
 		</div>
-		<InputGroup onClick={handleClick}>
-				<Form.Control as='textarea' placeholder='Your message goes here'/>
-				<Button variant='primary'>Send</Button>
+		<InputGroup>
+				<Form.Control as='textarea' id='inputMessage' placeholder='Your message goes here' />
+				<Button id='submit' variant='primary' onClick={handleClick}>Send</Button>
 		</InputGroup>
 		
 	</Form>)
