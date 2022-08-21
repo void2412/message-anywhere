@@ -3,16 +3,22 @@ const {ApolloServer} = require('apollo-server-express');
 const path = require('path');
 const {authMiddleware} = require('./utils/auth')
 
+
+const { createServer } = require('http')
+const {
+  ApolloServerPluginDrainHttpServer,
+  ApolloServerPluginLandingPageLocalDefault,
+} = require("apollo-server-core")
+const { makeExecutableSchema } =require('@graphql-tools/schema')
+const { WebSocketServer } = require('ws');
+const { useServer } = require('graphql-ws/lib/use/ws')
+
+
 const {typeDefs, resolvers} = require('./schemas')
 const db = require('./config/connection')
 
 const PORT = process.env.PORT || 3001
 const app = express()
-const server = new ApolloServer({
-	typeDefs: typeDefs,
-	resolvers: resolvers,
-	context: authMiddleware
-})
 
 app.use(express.urlencoded({extended: false}))
 app.use(express.json())
@@ -25,11 +31,45 @@ app.get('/',(req, res) => {
 	res.sendFile(path.join(__dirname, '../client/build/index.html'))
 })
 
+const httpServer = createServer(app)
+const schema = makeExecutableSchema({ typeDefs, resolvers });
+
+
+const server = new ApolloServer({
+	schema,
+	csrfPrevention: true,
+	cache: "bounded",
+	plugins: [
+		ApolloServerPluginLandingPageLocalDefault({ embed: true }),
+		{
+			async serverWillStart() {
+			  return {
+				async drainServer() {
+				  await serverCleanup.dispose();
+				},
+			  };
+			},
+		  }
+	],
+	context: authMiddleware
+})
+
+
+const wsServer = new WebSocketServer({
+	server: httpServer,
+	path: '/graphql'
+})
+
+const serverCleanup = useServer({schema}, wsServer)
+
+
+
+
 const startApolloServer = async (typeDefs, resolvers) =>{
 	await server.start()
 	server.applyMiddleware({app})
 	db.once('open', ()=>{
-		app.listen(PORT, () =>{
+		httpServer.listen(PORT, () =>{
 			console.log(`API server running on port ${PORT}`)
 			console.log(`Graphql server running at http://localhost:${PORT}${server.graphqlPath}`)
 		})
