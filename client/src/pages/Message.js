@@ -1,9 +1,9 @@
-import React from 'react';
-import { Navigate, useParams } from 'react-router-dom';
-import { useQuery, useMutation } from '@apollo/client';
+import React, {useState} from 'react';
+import { useQuery } from '@apollo/client';
 import { ADD_CONVERSATION, ADD_MESSAGE, REMOVE_CONVERSATION, REMOVE_MESSAGE, EDIT_MESSAGE } from '../utils/mutations';
-import { QUERY_CONVERSATIONS, QUERY_ME } from '../utils/queries';
+import { QUERY_CONVERSATIONS } from '../utils/queries';
 import Container from 'react-bootstrap/Container'
+import Chat from '../components/Chat'
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import ListGroup from 'react-bootstrap/ListGroup'
@@ -15,7 +15,7 @@ const Message = ()=>{
 		window.location.assign('/login')
 	}
 
-
+	const [currentChat, setCurrentChat] = useState('')
 	const {loading: conversationLoading, error: conversationError, data: conversationsData} = useQuery(QUERY_CONVERSATIONS)
 
 	const conversationsList = conversationsData?.conversations || []
@@ -26,21 +26,20 @@ const Message = ()=>{
 		const elementList = event.currentTarget.childNodes
 		const targetId = target.getAttribute('data-id')
 		for (const element of elementList){
-			if(element.getAttribute('data-id') == targetId){
+			if(element.getAttribute('data-id') === targetId){
 				element.classList.add('active')
 			}
 			else{
 				element.classList.remove('active')
 			}
 		}
-
-
+		setCurrentChat(targetId)
 	}
 
 	const getMembers = (conversation)=>{
 		let returnString = ``
 		for (const member of conversation.members){
-			if(member._id != userId){
+			if(member._id !== userId){
 				returnString += `${member.name}, `
 			}
 		}
@@ -51,7 +50,7 @@ const Message = ()=>{
 	return(
 		<Container fluid>
 			<Row>
-				<Col sm={12} md={3}>
+				<Col sm={12} md={3} className='mb-3'>
 					{conversationLoading ? 
 					(<div>Loading conversation...</div>)
 					:
@@ -67,7 +66,7 @@ const Message = ()=>{
 					}
 				</Col>
 				<Col sm={12} md={9}>
-					
+					<Chat conversationId={currentChat}/>
 				</Col>
 			</Row>
 		</Container>

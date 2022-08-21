@@ -33,25 +33,9 @@ mutation AddContact($email: String!) {
     email
     name
     contacts {
+      email
       _id
       name
-      email
-    }
-    conversations {
-      _id
-      members {
-        _id
-        name
-        email
-      }
-      messages {
-        _id
-        text
-        user {
-          _id
-          name
-        }
-      }
     }
   }
 }

@@ -66,6 +66,7 @@ const resolvers = {
 
 		addConversation: async (parent, {members}, context) =>{
 			if(context.user){
+				members.push(context.user._id)
 				let check = await Conversation.findOne({members: members})
 				if (check){
 					return check

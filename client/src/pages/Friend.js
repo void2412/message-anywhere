@@ -20,24 +20,25 @@ const Friend = () => {
 	const [removeContact] = useMutation(REMOVE_CONTACT)
 	const [addContact] = useMutation(ADD_CONTACT)
 	const userData= data?.me||{}
-	const[currentContact, setCurrentContact] = useState('')
 
-	const handleInputChange = (e)=>{
-		setCurrentContact(e.target.value)
-	}
 
-	const handleAddContact = async ()=>{	
-		try{
-			const {data} = await addContact({
-				variables: {email: currentContact}
-			})
-			window.location.reload()
+	const handleAddContact = async (e)=>{
+		const target = e.target
+		const elementList = e.currentTarget.childNodes
+		if(target.type =='button'){
+			const currentContact = elementList[0].value
+			try{
+				const {data} = await addContact({
+					variables: {email: currentContact}
+				})
+				window.location.reload()
+			}
+			catch(e){
+				console.error(e)
+			}
+
 		}
-		catch(e){
-			console.error(e)
-		}
-
-		setCurrentContact('')
+		
 	}
 
 	const handleRemoveContact = async (e)=>{
@@ -55,9 +56,9 @@ const Friend = () => {
 	return (
 		<Container>
 			<form>
-				<InputGroup className="mb-2">
-				<Form.Control onChange={handleInputChange} placeholder='user email' />
-				<Button variant="primary" onClick={handleAddContact}>Add Contact</Button>
+				<InputGroup className="mb-2" onClick={handleAddContact}>
+				<Form.Control placeholder='user email' />
+				<Button variant="primary">Add Contact</Button>
 				</InputGroup>
 			</form>
 			{loading ? 
@@ -67,7 +68,7 @@ const Friend = () => {
 				{userData.contacts.map((contact, index)=>{
 					return (
 						<Col key={index} sm={12} md={6} lg={4}>
-							<Card className='mb-2'>
+							<Card className='mb-2 text-center'>
 								<Card.Body>
 									<Card.Title>{contact.name}</Card.Title>
 									<Card.Text>{contact.email}</Card.Text>
