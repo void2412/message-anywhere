@@ -26,9 +26,9 @@ mutation AddUser($name: String!, $email: String!, $password: String!){
 }
 `
 
-export const addContact = gql`
-mutation AddContact($userId: ID!) {
-  addContact(userId: $userId) {
+export const ADD_CONTACT = gql`
+mutation AddContact($email: String!) {
+  addContact(email: $email) {
     _id
     email
     name
@@ -57,7 +57,7 @@ mutation AddContact($userId: ID!) {
 }
 `
 
-export const removeContact = gql`
+export const REMOVE_CONTACT = gql`
 mutation AddContact($userId: ID!) {
   removeContact(userId: $userId) {
     _id
@@ -72,7 +72,7 @@ mutation AddContact($userId: ID!) {
 }
 `
 
-export const addConversation = gql`
+export const ADD_CONVERSATION = gql`
 mutation AddConversation($members: [ID]!) {
   addConversation(members: $members) {
     _id
@@ -94,7 +94,7 @@ mutation AddConversation($members: [ID]!) {
 }
 `
 
-export const removeConversationFromUser = gql`
+export const REMOVE_CONVERSATION_USER = gql`
 mutation AddConversation($conversationId: ID!) {
   removeConversationFromUser(conversationId: $conversationId) {
     _id
@@ -107,7 +107,7 @@ mutation AddConversation($conversationId: ID!) {
 }
 `
 
-export const addMessage = gql`
+export const ADD_MESSAGE = gql`
 mutation AddMessage($conversationId: ID!, $text: String!) {
   addMessage(conversationId: $conversationId, text: $text) {
     _id
@@ -124,7 +124,7 @@ mutation AddMessage($conversationId: ID!, $text: String!) {
 }
 `
 
-export const removeMessage = gql`
+export const REMOVE_MESSAGE = gql`
 mutation RemoveMessage($messageId: ID!) {
   removeMessage(messageId: $messageId) {
     _id
@@ -141,7 +141,7 @@ mutation RemoveMessage($messageId: ID!) {
 }
 `
 
-export const editMessage = gql`
+export const EDIT_MESSAGE = gql`
 mutation RemoveMessage($messageId: ID!, $text: String!) {
   editMessage(messageId: $messageId, text: $text) {
     _id

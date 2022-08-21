@@ -10,6 +10,7 @@ import { setContext } from '@apollo/client/link/context';
 import Container from 'react-bootstrap/Container';
 
 import Homepage from './pages/Homepage'
+import Friend from './pages/Friend'
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import NotFound from './pages/NotFound'
@@ -21,7 +22,7 @@ const httpLink = createHttpLink({
 })
 
 const authLink = setContext((_, {headers})=>{
-	const token = localStorage.getItem('auth_token')
+	const token = localStorage.getItem('id_token')
 	return {
 		headers: {
 			...headers,
@@ -44,6 +45,7 @@ function App() {
 				<Routes>
 					<Route path='/' element={<Homepage />}/>
 					{/* <Route path='/messages' element={<Message/>}/> */}
+					<Route path='/friends' element={<Friend />}/>
 					<Route path='/login' element ={<Login/>}/>
 					<Route path="/signup" element={<Signup/>}/>
 					<Route path="*"element={<NotFound />}/>

@@ -8,7 +8,7 @@ const AppNavbar = ()=>{
 	console.log(Auth.loggedIn)
 	return (
 		<>
-			<Navbar bg='dark' variant = 'dark' expand='lg'>
+			<Navbar bg='dark' variant = 'dark' expand='lg' className='mb-3'>
 				<Container fluid>
 					<Navbar.Brand as={Link} to='/'>
 						Message Anywhere

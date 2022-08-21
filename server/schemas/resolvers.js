@@ -5,13 +5,12 @@ const { User, Conversation, Message } = require('../models');
 const resolvers = {
 	Query:{
 		User: async (parent, {userId})=>{
-			return await User.findById(userId)
+			return User.findById(userId)
 		},
 		
 		me: async (parent, args, context)=>{
 			if(context.user){
-				let userMe = await User.findById(context.user._id)
-				return userMe
+				return User.findOne({_id: context.user._id})
 			}
 			throw new AuthenticationError('You must be logged in')
 		},
@@ -33,6 +32,7 @@ const resolvers = {
 			if (context.user){
 				return Message.find({conversation: conversationId})
 			}
+			throw new AuthenticationError('You must be logged in')
 		}
 	},
 
@@ -127,13 +127,16 @@ const resolvers = {
 			throw new AuthenticationError('You must be logged in')
 		},
 
-		addContact: async (parent, {userId}, context) =>{
+		addContact: async (parent, {email}, context) =>{
 			if(context.user){
-				let usereditted = await User.findByIdAndUpdate(
-					context.user._id,
-					{$addToSet: {contacts: userId}},
-					{new: true}
+				let contactAdded = await User.find({email: email})
+				console.log(contactAdded)
+				let usereditted = await User.findOneAndUpdate(
+					{_id: context.user._id},
+					{$addToSet: {contacts: contactAdded[0]._id}},
+					{new: true, runValidators: true}
 					)
+				console.log(usereditted)
 				return usereditted
 			}
 

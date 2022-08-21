@@ -6,8 +6,8 @@ const typeDefs = gql`
 		email: String
 		password: String
 		name: String
-		conversations: [Conversation]!
-		contacts: [User]!
+		conversations: [Conversation]
+		contacts: [User]
 	}
 
 	type Conversation {
@@ -32,7 +32,7 @@ const typeDefs = gql`
 		User(userId: ID!): User
 		me: User
 		conversations: Conversation
-		messages(conversationId: ID!): Message
+		messages(conversationId: ID!): [Message]
 	}
 
 	type Mutation {
@@ -43,7 +43,7 @@ const typeDefs = gql`
 		addMessage(conversationId: ID!, text: String!): Conversation
 		removeMessage(messageId: ID!): Conversation
 		editMessage(messageId: ID!, text: String!): Conversation
-		addContact(userId: ID!): User
+		addContact(email: String!): User
 		removeContact(userId: ID!): User
 	}
 `
