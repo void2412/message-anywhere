@@ -36,6 +36,7 @@ const Message = ()=>{
 		setCurrentChat(targetId)
 	}
 
+
 	const getMembers = (conversation)=>{
 		let returnString = ``
 		for (const member of conversation.members){
@@ -66,7 +67,12 @@ const Message = ()=>{
 					}
 				</Col>
 				<Col sm={12} md={9}>
-					<Chat conversationId={currentChat}/>
+					{currentChat ?
+					(<Chat conversationId={currentChat}/>)
+					:
+					(<div className=''> Select Conversation to start chatting</div>)
+					}
+					
 				</Col>
 			</Row>
 		</Container>

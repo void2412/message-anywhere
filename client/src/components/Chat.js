@@ -3,7 +3,6 @@ import { useQuery, useMutation } from '@apollo/client';
 import {ADD_MESSAGE, REMOVE_MESSAGE, EDIT_MESSAGE } from '../utils/mutations';
 import { QUERY_MESSAGES, QUERY_ME } from '../utils/queries';
 import Form from 'react-bootstrap/Form'
-import Container from 'react-bootstrap/Container'
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup'
 
@@ -18,7 +17,13 @@ const Chat = (props)=> {
 	const {loading: messageLoading, error: messageError, data: messageData} = useQuery(QUERY_MESSAGES,{
 		variables: {conversationId: props.conversationId}
 	})
+	const {loading: meLoading, error: meError, data: meData} = useQuery(QUERY_ME)
 
+	if(meLoading){
+		return (<>Loading User Data ...</>)
+	}
+	console.log(messageData)
+	const userId = meData?.me._id || null
 	const handleClick = (e)=>{
 
 	}
@@ -31,8 +36,15 @@ const Chat = (props)=> {
 			(<>Loading Messages</>)
 			:
 			(<div>
-			{messageData.map((message)=>{
-				
+			{messageData.messages.map((message)=>{
+				const id = message.user._id
+				const text = message.text
+				if (id === userId){
+					return (<div key={id} data-id={id} className="text-end">{text}</div>)
+				}
+				else{
+					return(<div key={id} data-id={id} className="text-start">{text}</div>)
+				}
 			})}
 			</div>)}
 		</div>
