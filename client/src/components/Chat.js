@@ -122,6 +122,7 @@ const Chat = (props)=> {
 
 	return (
 	<>
+		
 		<div className="form-control mb-3" id="chatArea" style={{
 			height: "700px",
 			overflowY: "auto"

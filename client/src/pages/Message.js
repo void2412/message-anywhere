@@ -7,6 +7,9 @@ import Chat from '../components/Chat'
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import ListGroup from 'react-bootstrap/ListGroup'
+import Form from 'react-bootstrap/Form'
+import Button from 'react-bootstrap/Button';
+import InputGroup from 'react-bootstrap/InputGroup'
 import Auth from '../utils/auth'
 
 const Message = ()=>{
@@ -49,6 +52,10 @@ const Message = ()=>{
 	
 	return(
 		<Container fluid>
+			<InputGroup className="mb-3">
+				<Form.Control as="input" placeholder='Who do you want to send messages? (email)' />
+				<Button variant='primary'>Start Chat</Button>
+			</InputGroup>
 			<Row>
 				<Col sm={12} md={3} className='mb-3'>
 					{conversationLoading ? 
@@ -66,6 +73,7 @@ const Message = ()=>{
 					}
 				</Col>
 				<Col sm={12} md={9}>
+					
 					{currentChat ?
 					(<Chat conversationId={currentChat}/>)
 					:
