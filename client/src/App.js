@@ -17,9 +17,19 @@ import NotFound from './pages/NotFound'
 import Message from './pages/Message'
 import NavbarComponent from './components/Navbar'
 
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { createClient } from 'graphql-ws';
+import { split, HttpLink } from '@apollo/client';
+import { getMainDefinition } from '@apollo/client/utilities';
+
+
 const httpLink = createHttpLink({
 	uri:'/graphql'
 })
+
+const wsLink = new GraphQLWsLink(createClient({
+	url: 'ws://localhost:3001/subscriptions'
+  }));
 
 const authLink = setContext((_, {headers})=>{
 	const token = localStorage.getItem('id_token')
@@ -31,8 +41,20 @@ const authLink = setContext((_, {headers})=>{
 	}
 })
 
+const splitLink = split(
+	({ query }) => {
+	  const definition = getMainDefinition(query);
+	  return (
+		definition.kind === 'OperationDefinition' &&
+		definition.operation === 'subscription'
+	  );
+	},
+	wsLink,
+	authLink.concat(httpLink),
+  );
+
 const client = new ApolloClient({
-	link: authLink.concat(httpLink),
+	link: splitLink,
 	cache: new InMemoryCache()
 })
 

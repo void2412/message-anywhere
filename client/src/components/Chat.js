@@ -1,6 +1,7 @@
-import React from 'react';
-import { useQuery, useMutation } from '@apollo/client';
+import React, {useEffect} from 'react';
+import { useQuery, useMutation, useSubscription } from '@apollo/client';
 import {ADD_MESSAGE, REMOVE_MESSAGE, EDIT_MESSAGE } from '../utils/mutations';
+import {MESSAGES_SUBSCRIPTION} from '../utils/subscriptions'
 import { QUERY_MESSAGES, QUERY_ME } from '../utils/queries';
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button';
@@ -14,32 +15,52 @@ const Chat = (props)=> {
 		window.location.assign('/login')
 	}
 
-	const {loading: messageLoading, error: messageError, data: messageData} = useQuery(QUERY_MESSAGES,{
+	
+	
+
+
+	const {loading: messageLoading, error: messageError, data: messageData} = useSubscription(MESSAGES_SUBSCRIPTION,{
 		variables: {conversationId: props.conversationId}
 	})
 	const {loading: meLoading, error: meError, data: meData} = useQuery(QUERY_ME)
 	const [addMessage] = useMutation(ADD_MESSAGE)
 
+	useEffect(()=>{
+		if(!messageLoading){
+			document.querySelector('#chatArea').scrollTop = document.querySelector('#chatArea').scrollHeight
+		}
+		
+	})
+
 	if(meLoading){
 		return (<>Loading User Data ...</>)
 	}
 	const userId = meData?.me._id || null
-	const handleClick = (e)=>{
+
+	
+
+
+	const handleClick = async (e)=>{
 		e.preventDefault()
 		const input= document.querySelector('#inputMessage')
 		const currentTextMessage = input.value.trim()
 		if (currentTextMessage != ''){
 			try{
-				const {data} = addMessage({
+				const {data} = await addMessage({
 					variables: {
 						conversationId: props.conversationId,
 						text: currentTextMessage
 					}
 				})
-				input.value = ''
+				
+				
 			}
 			catch(err){
 				console.error(err)
+			}
+			finally{
+				input.value = ''
+				document.querySelector('#chatArea').scrollTop = document.querySelector('#chatArea').scrollHeight
 			}
 		}
 	}
@@ -89,10 +110,11 @@ const Chat = (props)=> {
 	
 
 
+
 	return (
 	<>
-		<div className="form-control mb-3" style={{
-			height: "900px",
+		<div className="form-control mb-3" id="chatArea" style={{
+			height: "700px",
 			overflowY: "auto"
 		}}>
 			{renderChatMessages()}
