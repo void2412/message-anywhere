@@ -74,6 +74,7 @@ const Message = ()=>{
 	const handleAddCon = async ()=>{
 		let data = document.querySelector('#memberBox').value.trim()
 		data = data.split(' ')
+		console.log(data)
 		let returnData = await addConversation({variables: {members: data}})
 		let id = returnData.data.addConversation._id
 		handleColorChange(id)

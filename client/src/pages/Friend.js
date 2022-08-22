@@ -79,7 +79,7 @@ const Friend = () => {
 			(<div>Loading...</div>)
 			:
 			(<Row>
-				{userData.contacts.map((contact, index)=>{
+				{userData.contacts?.map((contact, index)=>{
 					return (
 						<Col key={index} sm={12} md={6} lg={4}>
 							<Card className='mb-2 text-center'>
