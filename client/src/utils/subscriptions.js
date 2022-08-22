@@ -12,3 +12,16 @@ subscription Subscription($conversationId: ID!) {
   }
 }
 `
+
+export const CONVERSATIONS_SUBSCRIPTION = gql`
+subscription Conversations($userId: ID!) {
+  conversations(userId: $userId) {
+    _id
+    members {
+      _id
+      email
+      name
+    }
+  }
+}
+`

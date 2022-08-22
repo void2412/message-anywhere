@@ -15,10 +15,6 @@ const Chat = (props)=> {
 		window.location.assign('/login')
 	}
 
-	
-	
-
-
 	const {loading: messageLoading, error: messageError, data: messageData} = useSubscription(MESSAGES_SUBSCRIPTION,{
 		variables: {conversationId: props.conversationId}
 	})

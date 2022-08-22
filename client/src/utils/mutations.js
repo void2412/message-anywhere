@@ -60,19 +60,19 @@ export const ADD_CONVERSATION = gql`
 mutation AddConversation($members: [String]!) {
   addConversation(members: $members) {
     _id
-    messages {
-      _id
-      user {
-        _id
-        name
-        email
-      }
-      text
-    }
     members {
       _id
-      name
       email
+      name
+    }
+    messages {
+      _id
+      text
+      user {
+        _id
+        email
+        name
+      }
     }
   }
 }

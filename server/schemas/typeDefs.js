@@ -38,7 +38,7 @@ const typeDefs = gql`
 	type Mutation {
 		addUser(name: String!, email: String!, password: String!): Auth
 		login(email: String!, password: String!): Auth
-		addConversation(members: [ID]!): Conversation
+		addConversation(members: [String]!): Conversation
 		addMessage(conversationId: ID!, text: String!): Conversation
 		removeMessage(messageId: ID!): Conversation
 		editMessage(messageId: ID!, text: String!): Conversation
@@ -48,6 +48,7 @@ const typeDefs = gql`
 
 	type Subscription {
 		messages(conversationId: ID!): [Message]
+		conversations(userId: ID!): [Conversation]
 	}
 `
 

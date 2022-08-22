@@ -7,7 +7,7 @@ const {PubSub} = require('graphql-subscriptions')
 
 
 const pubsub = new PubSub()
-
+const pubsubConversation = new PubSub()
 const resolvers = {
 	Query:{
 		User: async (parent, {userId})=>{
@@ -21,7 +21,7 @@ const resolvers = {
 			throw new AuthenticationError('You must be logged in')
 		},
 
-	conversations: async (parent, args, context) =>{
+		conversations: async (parent, args, context) =>{
 			if(context.user){
 				return Conversation.find({members: context.user._id})
 			}
@@ -72,13 +72,23 @@ const resolvers = {
 
 		addConversation: async (parent, {members}, context) =>{
 			if(context.user){
-				members.push(context.user._id)
-				let check = await Conversation.findOne({members: members})
+				let membersEditted = []
+				for (const member of members){
+					let innerUser = await User.findOne({email: member})
+					membersEditted.push(innerUser)
+				}
+
+				membersEditted.push(context.user._id)
+				let check = await Conversation.findOne({members: membersEditted})
 				if (check){
 					return check
 				}
 
-				let conversationCreated = await Conversation.create({members: members})
+				let conversationCreated = await Conversation.create({members: membersEditted})
+
+				let conversations = await Conversation.find({members: context.user._id})
+				pubsubConversation.publish(context.user._id, {conversations})
+
 				return conversationCreated
 			}
 			throw new AuthenticationError('You must be logged in')
@@ -135,13 +145,11 @@ const resolvers = {
 		addContact: async (parent, {email}, context) =>{
 			if(context.user){
 				let contactAdded = await User.find({email: email})
-				console.log(contactAdded)
 				let usereditted = await User.findOneAndUpdate(
 					{_id: context.user._id},
 					{$addToSet: {contacts: contactAdded[0]._id}},
 					{new: true, runValidators: true}
 					)
-				console.log(usereditted)
 				return usereditted
 			}
 
@@ -168,6 +176,14 @@ const resolvers = {
 				let messages = await Message.find({conversation: conversationId}) || []
 				setTimeout(()=> pubsub.publish(channel, {messages}), 0)
 				return pubsub.asyncIterator(channel)
+			}
+		},
+		conversations:{
+			subscribe: async (parent, {userId}, context) =>{
+				const channel = userId
+				let conversations = await Conversation.find({members: userId}) || []
+				setTimeout(()=> pubsubConversation.publish(channel, {conversations}), 0)
+				return pubsubConversation.asyncIterator(channel)
 			}
 		}
 	},

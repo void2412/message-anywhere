@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import { ADD_CONVERSATION, ADD_MESSAGE, REMOVE_CONVERSATION, REMOVE_MESSAGE, EDIT_MESSAGE } from '../utils/mutations';
-import { QUERY_CONVERSATIONS } from '../utils/queries';
+import { QUERY_CONVERSATIONS, QUERY_ME } from '../utils/queries';
+import { CONVERSATIONS_SUBSCRIPTION } from '../utils/subscriptions';
 import Container from 'react-bootstrap/Container'
 import Chat from '../components/Chat'
 import Row from 'react-bootstrap/Row';
@@ -12,32 +13,41 @@ import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup'
 import Auth from '../utils/auth'
 
-const Message = ()=>{
+const Message = (props)=>{
 	const token = Auth.getToken()||false
 	if(!token || Auth.isTokenExpired(token)){
 		window.location.assign('/login')
 	}
 
 	const [currentChat, setCurrentChat] = useState('')
-	const {loading: conversationLoading, error: conversationError, data: conversationsData} = useQuery(QUERY_CONVERSATIONS)
+	const userId = Auth.getUser().data._id
+	const {loading: meLoading, error: meError, data: meData} = useQuery(QUERY_ME)
+	const currentuserData = meData?.me || {}
+	const {loading: conversationLoading, error: conversationError, data: conversationsData} = useSubscription(CONVERSATIONS_SUBSCRIPTION,{variables:{userId: userId}})
+	
 
 	const [addConversation] = useMutation(ADD_CONVERSATION)
 	
 	const conversationsList = conversationsData?.conversations || []
-	const userId = Auth.getUser().data._id
+	
 	const handleConversationClick = (event) =>{
 		const target = event.target
-		const elementList = event.currentTarget.childNodes
 		const targetId = target.getAttribute('data-id')
-		for (const element of elementList){
-			if(element.getAttribute('data-id') === targetId){
+		handleColorChange(targetId)
+		setCurrentChat(targetId)
+	}
+
+	const handleColorChange = (id)=>{
+		let parent = document.querySelector("#conversationList")
+		let childs = parent.childNodes
+		for (const element of childs){
+			if(element.getAttribute('data-id') === id){
 				element.classList.add('active')
 			}
 			else{
 				element.classList.remove('active')
 			}
 		}
-		setCurrentChat(targetId)
 	}
 
 
@@ -52,18 +62,25 @@ const Message = ()=>{
 		return returnString
 	}
 	
+	const handleAddCon = async ()=>{
+		let data = document.querySelector('#memberBox').value.trim()
+		data = data.split(' ')
+		await addConversation({variables: {members: data}})
+	}
+
 	return(
 		<Container fluid>
 			<InputGroup className="mb-3">
-				<Form.Control as="input" placeholder='Who do you want to send messages? (email)' />
-				<Button variant='primary'>Start Chat</Button>
+				<Form.Control as="input" id="memberBox" placeholder='Who do you want to send messages? (email, seperate by space)' />
+				<Button variant='primary' onClick={handleAddCon}>Start Chat</Button>
 			</InputGroup>
+			
 			<Row>
 				<Col sm={12} md={3} className='mb-3'>
 					{conversationLoading ? 
 					(<div>Loading conversation...</div>)
 					:
-					(<ListGroup onClick={handleConversationClick}>
+					(<ListGroup onClick={handleConversationClick} id="conversationList">
 						{conversationsList.map((conversation)=>{
 							return(
 								<ListGroup.Item as='button' className='list-group-item-action' key={conversation._id} data-id={conversation._id}>
