@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import { ADD_CONVERSATION, ADD_MESSAGE, REMOVE_CONVERSATION, REMOVE_MESSAGE, EDIT_MESSAGE } from '../utils/mutations';
 import { QUERY_CONVERSATIONS, QUERY_ME } from '../utils/queries';
@@ -65,7 +65,11 @@ const Message = (props)=>{
 	const handleAddCon = async ()=>{
 		let data = document.querySelector('#memberBox').value.trim()
 		data = data.split(' ')
-		await addConversation({variables: {members: data}})
+		let returnData = await addConversation({variables: {members: data}})
+		let id = returnData.data.addConversation._id
+		handleColorChange(id)
+		setCurrentChat(id)
+
 	}
 
 	return(
