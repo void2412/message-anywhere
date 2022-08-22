@@ -40,8 +40,12 @@ const Chat = (props)=> {
 	
 
 
-	const handleClick = async (e)=>{
+	const handleClick = (e)=>{
 		e.preventDefault()
+		handleSendMsg()
+	}
+
+	const handleSendMsg = async () => {
 		const input= document.querySelector('#inputMessage')
 		const currentTextMessage = input.value.trim()
 		if (currentTextMessage != ''){
@@ -109,7 +113,12 @@ const Chat = (props)=> {
 	}
 	
 
-
+	const handleKey = (key)=>{
+		if(key.keyCode == 13 && !key.shiftKey){
+			key.preventDefault()
+			handleSendMsg()
+		}
+	}
 
 	return (
 	<>
@@ -121,7 +130,7 @@ const Chat = (props)=> {
 		</div>
 		<Form>
 		<InputGroup>
-				<Form.Control as='textarea' id='inputMessage' placeholder='Your message goes here' />
+				<Form.Control as='textarea' id='inputMessage' placeholder='Your message goes here' onKeyDown={handleKey}/>
 				<Button id='submit' variant='primary' onClick={handleClick}>Send</Button>
 		</InputGroup>
 		
