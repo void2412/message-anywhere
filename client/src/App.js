@@ -28,7 +28,7 @@ const httpLink = createHttpLink({
 })
 
 const wsLink = new GraphQLWsLink(createClient({
-	url: `wss://localhost:${process.env.PORT}/subscriptions`
+	url: `ws://localhost:${process.env.PORT}/subscriptions`
   }));
 
 const authLink = setContext((_, {headers})=>{
