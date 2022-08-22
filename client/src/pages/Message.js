@@ -12,7 +12,7 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup'
 import Auth from '../utils/auth'
-import {useLocation} from 'react-router-dom'
+
 const Message = ()=>{
 	const token = Auth.getToken()||false
 	if(!token || Auth.isTokenExpired(token)){
