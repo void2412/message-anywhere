@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { ADD_CONVERSATION, ADD_MESSAGE, REMOVE_CONVERSATION, REMOVE_MESSAGE, EDIT_MESSAGE } from '../utils/mutations';
 import { QUERY_CONVERSATIONS } from '../utils/queries';
 import Container from 'react-bootstrap/Container'
@@ -20,6 +20,8 @@ const Message = ()=>{
 
 	const [currentChat, setCurrentChat] = useState('')
 	const {loading: conversationLoading, error: conversationError, data: conversationsData} = useQuery(QUERY_CONVERSATIONS)
+
+	const [addConversation] = useMutation(ADD_CONVERSATION)
 	
 	const conversationsList = conversationsData?.conversations || []
 	const userId = Auth.getUser().data._id

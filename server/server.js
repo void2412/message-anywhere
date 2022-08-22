@@ -32,9 +32,14 @@ app.get('/',(req, res) => {
 })
 
 const httpServer = createServer(app)
+
+const wsServer = new WebSocketServer({
+	server: httpServer,
+	path: '/subscriptions'
+})
+
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
-const pubsub = new PubSub()
 const server = new ApolloServer({
 	schema,
 	csrfPrevention: true,
@@ -55,10 +60,6 @@ const server = new ApolloServer({
 })
 
 
-const wsServer = new WebSocketServer({
-	server: httpServer,
-	path: '/graphql'
-})
 
 const serverCleanup = useServer({schema}, wsServer)
 

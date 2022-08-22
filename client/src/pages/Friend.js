@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import {useMutation, useQuery} from '@apollo/client'
 import {QUERY_ME} from '../utils/queries'
-import {ADD_CONTACT, REMOVE_CONTACT} from '../utils/mutations'
+import {ADD_CONTACT, REMOVE_CONTACT, ADD_CONVERSATION} from '../utils/mutations'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -20,7 +20,7 @@ const Friend = () => {
 	const [removeContact] = useMutation(REMOVE_CONTACT)
 	const [addContact] = useMutation(ADD_CONTACT)
 	const userData= data?.me||{}
-
+	const [addConversation] = useMutation(ADD_CONVERSATION)
 
 	const handleAddContact = async (e)=>{
 		const target = e.target

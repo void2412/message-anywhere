@@ -4,14 +4,7 @@ const { User, Conversation, Message } = require('../models');
 const {PubSub} = require('graphql-subscriptions')
 
 
-const messagesList = {}
-const subscriberChannelList = {}
-const onMessageUpdate = (fn, channel)=>{
-	if(!subscriberChannelList[channel]){
-		subscriberChannelList[channel]=[]
-	}
-	subscriberChannelList[channel].push(fn)
-}
+
 
 const pubsub = new PubSub()
 
@@ -98,10 +91,10 @@ const resolvers = {
 					conversation: args.conversationId,
 					text: args.text
 				})
-				let messages = await Message.find({conversation: args.conversationId})
 
-				subscriberChannelList[args.conversationId].forEach((fn)=> fn())
+				let messages = await Message.find({conversation: args.conversationId})
 				pubsub.publish(args.conversationId, {messages})
+
 				return Conversation.findOneAndUpdate(
 					{_id: args.conversationId},
 					{ $addToSet: {messages: messageAdded._id} },
@@ -172,16 +165,7 @@ const resolvers = {
 		messages: {
 			subscribe: async (parent, {conversationId}, context) =>{
 				const channel = conversationId
-				if(!messagesList[channel]){
-					messagesList[channel]=[]
-				}
-				if(!subscriberChannelList[channel]){
-					subscriberChannelList[channel] = []
-				}
-				
-				messagesList[channel] = await Message.find({conversation: conversationId})
-				let messages = messagesList[channel]
-				onMessageUpdate(()=> pubsub.publish(channel, { messages }, channel))
+				let messages = await Message.find({conversation: conversationId}) || []
 				setTimeout(()=> pubsub.publish(channel, {messages}), 0)
 				return pubsub.asyncIterator(channel)
 			}
