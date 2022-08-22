@@ -45,6 +45,10 @@ const typeDefs = gql`
 		addContact(email: String!): User
 		removeContact(userId: ID!): User
 	}
+
+	type Subscription {
+		messages(conversationId: ID!): [Message]
+	}
 `
 
 module.exports = typeDefs

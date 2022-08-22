@@ -51,7 +51,7 @@ const server = new ApolloServer({
 			},
 		  }
 	],
-	context: {authMiddleware, pubsub}
+	context: authMiddleware
 })
 
 

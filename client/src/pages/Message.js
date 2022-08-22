@@ -17,9 +17,8 @@ const Message = ()=>{
 
 	const [currentChat, setCurrentChat] = useState('')
 	const {loading: conversationLoading, error: conversationError, data: conversationsData} = useQuery(QUERY_CONVERSATIONS)
-
+	
 	const conversationsList = conversationsData?.conversations || []
-
 	const userId = Auth.getUser().data._id
 	const handleConversationClick = (event) =>{
 		const target = event.target

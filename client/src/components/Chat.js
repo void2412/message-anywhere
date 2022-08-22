@@ -44,54 +44,68 @@ const Chat = (props)=> {
 		}
 	}
 
+	const renderChatMessages = () =>{
+		if(messageLoading){
+			return (<div>Loading Messages</div>)
+		}
+		else{
+			return (<>
+				{messageData.messages.map((message)=>{
+					const id = message.user._id
+					const text = message.text
+					if (id === userId){
+						return (<div key={message._id} data-id={message._id} className="mb-2" style={{
+							display: 'flex',
+							alignItems: 'end',
+							justifyContent: "end",
+						}}>
+							<div className="p-3" style={{
+								background: "#58bf56",
+								borderRadius: "15px",
+								maxWidth: "60%"
+							}}>
+								{text}
+							</div>
+						</div>)
+					}
+					else{
+						return(<div key={message._id} data-id={message._id} className="mb-2" style={{
+							display: 'flex',
+							justifyContent: "start"
+						}}>
+							<div className="p-3" style={{
+								background: "#e5e6ea",
+								borderRadius: "15px",
+								maxWidth: "60%"
+							}}>
+								{text}
+							</div>						
+						</div>)
+					}
+				})}
+				</>)
+		}
+	}
+	
 
-	return (<Form>
-		<div className="form-control mb-3">
-			{messageLoading ?
-			(<>Loading Messages</>)
-			:
-			(<div>
-			{messageData.messages.map((message)=>{
-				const id = message.user._id
-				const text = message.text
-				if (id === userId){
-					return (<div key={message._id} data-id={message._id} className="mb-2" style={{
-						display: 'flex',
-						alignItems: 'end',
-						justifyContent: "end",
-					}}>
-						<div className="p-3" style={{
-							background: "#58bf56",
-							borderRadius: "15px",
-							maxWidth: "60%"
-						}}>
-							{text}
-						</div>
-					</div>)
-				}
-				else{
-					return(<div key={message._id} data-id={message._id} className="mb-2" style={{
-						display: 'flex',
-						justifyContent: "start"
-					}}>
-						<div className="p-3" style={{
-							background: "#e5e6ea",
-							borderRadius: "15px",
-							maxWidth: "60%"
-						}}>
-							{text}
-						</div>						
-					</div>)
-				}
-			})}
-			</div>)}
+
+	return (
+	<>
+		<div className="form-control mb-3" style={{
+			height: "900px",
+			overflowY: "auto"
+		}}>
+			{renderChatMessages()}
 		</div>
+		<Form>
 		<InputGroup>
 				<Form.Control as='textarea' id='inputMessage' placeholder='Your message goes here' />
 				<Button id='submit' variant='primary' onClick={handleClick}>Send</Button>
 		</InputGroup>
 		
-	</Form>)
+		</Form>
+	</>
+	)
 }
 
 export default Chat

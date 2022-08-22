@@ -1,6 +1,19 @@
 const { AuthenticationError } = require('apollo-server-express');
 const { signToken } = require('../utils/auth');
 const { User, Conversation, Message } = require('../models');
+const {PubSub} = require('graphql-subscriptions')
+
+
+const messagesList = {}
+const subscriberChannelList = {}
+const onMessageUpdate = (fn, channel)=>{
+	if(!subscriberChannelList[channel]){
+		subscriberChannelList[channel]=[]
+	}
+	subscriberChannelList[channel].push(fn)
+}
+
+const pubsub = new PubSub()
 
 const resolvers = {
 	Query:{
@@ -8,31 +21,31 @@ const resolvers = {
 			return User.findById(userId)
 		},
 		
-		me: async (parent, args, {authMiddleware, pubsub})=>{
-			if(authMiddleware.user){
-				return User.findOne({_id: authMiddleware.user._id})
+		me: async (parent, args, context)=>{
+			if(context.user){
+				return User.findOne({_id: context.user._id})
 			}
 			throw new AuthenticationError('You must be logged in')
 		},
 
-	conversations: async (parent, args, {authMiddleware, pubsub}) =>{
-			if(authMiddleware.user){
-				return Conversation.find({members: authMiddleware.user._id})
+	conversations: async (parent, args, context) =>{
+			if(context.user){
+				return Conversation.find({members: context.user._id})
 			}
 
 			throw new AuthenticationError('You must be logged in')
 		},
 
-		conversation: async (parent, {conversationId}, {authMiddleware, pubsub})=>{
-			if(authMiddleware.user){
+		conversation: async (parent, {conversationId}, context)=>{
+			if(context.user){
 				return Conversation.findOne({_id: conversationId})
 			}
 
 			throw new AuthenticationError('You must be logged in')
 		},
 		
-		messages: async (parent, {conversationId}, {authMiddleware, pubsub}) => {
-			if (authMiddleware.user){
+		messages: async (parent, {conversationId}, context) => {
+			if (context.user){
 				return Message.find({conversation: conversationId})
 			}
 			throw new AuthenticationError('You must be logged in')
@@ -64,9 +77,9 @@ const resolvers = {
 			return {token, user}
 		},
 
-		addConversation: async (parent, {members}, {authMiddleware, pubsub}) =>{
-			if(authMiddleware.user){
-				members.push(authMiddleware.user._id)
+		addConversation: async (parent, {members}, context) =>{
+			if(context.user){
+				members.push(context.user._id)
 				let check = await Conversation.findOne({members: members})
 				if (check){
 					return check
@@ -78,28 +91,30 @@ const resolvers = {
 			throw new AuthenticationError('You must be logged in')
 		},
 
-		addMessage: async (parent, args, {authMiddleware, pubsub}) => {
-			if(authMiddleware.user){
+		addMessage: async (parent, args, context) => {
+			if(context.user){
 				let messageAdded = await Message.create({
-					user: authMiddleware.user._id,
+					user: context.user._id,
 					conversation: args.conversationId,
 					text: args.text
 				})
+				let messages = await Message.find({conversation: args.conversationId})
 
+				subscriberChannelList[args.conversationId].forEach((fn)=> fn())
+				pubsub.publish(args.conversationId, {messages})
 				return Conversation.findOneAndUpdate(
 					{_id: args.conversationId},
 					{ $addToSet: {messages: messageAdded._id} },
 					{new: true, runValidators: true}
 				)
-
 				
 			}
 
 			throw new AuthenticationError('You must be logged in')
 		},
 
-		removeMessage: async (parent, {messageId}, {authMiddleware, pubsub}) => {
-			if(authMiddleware.user){
+		removeMessage: async (parent, {messageId}, context) => {
+			if(context.user){
 				let messageDeleted = await Message.findByIdAndDelete(messageId)
 				return Conversation.findOneAndUpdate(
 					{_id: messageDeleted.conversation},
@@ -111,8 +126,8 @@ const resolvers = {
 			throw new AuthenticationError('You must be logged in')
 		},
 
-		editMessage: async (parent, {messageId, text}, {authMiddleware, pubsub}) =>{
-			if(authMiddleware.user){
+		editMessage: async (parent, {messageId, text}, context) =>{
+			if(context.user){
 				let messageEditted = await Message.findByIdAndUpdate(
 					{_id: messageId},
 					{text: text},
@@ -124,12 +139,12 @@ const resolvers = {
 			throw new AuthenticationError('You must be logged in')
 		},
 
-		addContact: async (parent, {email}, {authMiddleware, pubsub}) =>{
-			if(authMiddleware.user){
+		addContact: async (parent, {email}, context) =>{
+			if(context.user){
 				let contactAdded = await User.find({email: email})
 				console.log(contactAdded)
 				let usereditted = await User.findOneAndUpdate(
-					{_id: authMiddleware.user._id},
+					{_id: context.user._id},
 					{$addToSet: {contacts: contactAdded[0]._id}},
 					{new: true, runValidators: true}
 					)
@@ -140,16 +155,36 @@ const resolvers = {
 			throw new AuthenticationError('You must be logged in')
 		},
 
-		removeContact: async(parent, {userId}, {authMiddleware, pubsub}) =>{
-			if(authMiddleware.user){
+		removeContact: async(parent, {userId}, context) =>{
+			if(context.user){
 				return User.findByIdAndUpdate(
-					authMiddleware.user._id,
+					context.user._id,
 					{$pull: {contacts: userId}},
 					{new: true}
 				)
 			}
 
 			throw new AuthenticationError('You must be logged in')
+		}
+	},
+
+	Subscription: {
+		messages: {
+			subscribe: async (parent, {conversationId}, context) =>{
+				const channel = conversationId
+				if(!messagesList[channel]){
+					messagesList[channel]=[]
+				}
+				if(!subscriberChannelList[channel]){
+					subscriberChannelList[channel] = []
+				}
+				
+				messagesList[channel] = await Message.find({conversation: conversationId})
+				let messages = messagesList[channel]
+				onMessageUpdate(()=> pubsub.publish(channel, { messages }, channel))
+				setTimeout(()=> pubsub.publish(channel, {messages}), 0)
+				return pubsub.asyncIterator(channel)
+			}
 		}
 	},
 
