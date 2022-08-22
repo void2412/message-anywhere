@@ -119,6 +119,10 @@ const resolvers = {
 		removeMessage: async (parent, {messageId}, context) => {
 			if(context.user){
 				let messageDeleted = await Message.findByIdAndDelete(messageId)
+
+				let messages = await Message.find({conversation: messageDeleted.conversation})
+				pubsub.publish(messageDeleted.conversation, {messages})
+
 				return Conversation.findOneAndUpdate(
 					{_id: messageDeleted.conversation},
 					{$pull: {messages: messageId}},
@@ -136,6 +140,10 @@ const resolvers = {
 					{text: text},
 					{new: true}
 				)
+
+				let messages = await Message.find({conversation: messageEditted.conversation})
+				pubsub.publish(messageEditted.conversation, {messages})
+
 				return Conversation.findById(messageEditted.conversation)
 			}
 

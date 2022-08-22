@@ -100,12 +100,12 @@ mutation RemoveMessage($messageId: ID!) {
     _id
     messages {
       _id
+      text
       user {
         _id
         email
         name
       }
-      text
     }
   }
 }
