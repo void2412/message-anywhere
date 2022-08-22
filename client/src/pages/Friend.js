@@ -2,6 +2,7 @@ import React, {useState} from 'react'
 import {useMutation, useQuery} from '@apollo/client'
 import {QUERY_ME} from '../utils/queries'
 import {ADD_CONTACT, REMOVE_CONTACT, ADD_CONVERSATION} from '../utils/mutations'
+import { useNavigate } from "react-router-dom";
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -15,7 +16,7 @@ const Friend = () => {
 	if(!token||Auth.isTokenExpired(token)){
 		window.location.assign('/')
 	}
-
+	let navigate = useNavigate()
 	const {loading, error, data} = useQuery(QUERY_ME)
 	const [removeContact] = useMutation(REMOVE_CONTACT)
 	const [addContact] = useMutation(ADD_CONTACT)
@@ -53,6 +54,19 @@ const Friend = () => {
 		}
 	}
 
+
+	const handleAddConversation = async (e)=>{
+		try{
+			let members = [e.target.getAttribute('data-email')]
+			const {data} = await addConversation({variables:{members: members}})
+			localStorage.setItem('currentConversation',data.addConversation._id)
+			navigate("/messages")
+		}
+		catch(e){
+			console.error(e)
+		}
+	}
+
 	return (
 		<Container>
 			<form>
@@ -72,7 +86,7 @@ const Friend = () => {
 								<Card.Body>
 									<Card.Title>{contact.name}</Card.Title>
 									<Card.Text>{contact.email}</Card.Text>
-									<Button variants="primary" className='me-2'>Start Chat</Button>
+									<Button variants="primary" className='me-2' data-email={contact.email} onClick={handleAddConversation}>Start Chat</Button>
 									<Button variants="danger" onClick={handleRemoveContact} data-id={contact._id}>Remove Friend</Button>
 								</Card.Body>
 							</Card>

@@ -12,19 +12,27 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup'
 import Auth from '../utils/auth'
-
-const Message = (props)=>{
+import {useLocation} from 'react-router-dom'
+const Message = ()=>{
 	const token = Auth.getToken()||false
 	if(!token || Auth.isTokenExpired(token)){
 		window.location.assign('/login')
 	}
 
+	const currentConversation = localStorage.getItem('currentConversation')||false
 	const [currentChat, setCurrentChat] = useState('')
 	const userId = Auth.getUser().data._id
 	const {loading: meLoading, error: meError, data: meData} = useQuery(QUERY_ME)
 	const currentuserData = meData?.me || {}
 	const {loading: conversationLoading, error: conversationError, data: conversationsData} = useSubscription(CONVERSATIONS_SUBSCRIPTION,{variables:{userId: userId}})
 	
+	useEffect(()=>{
+		if(currentConversation){		
+			setCurrentChat(currentConversation)
+			setTimeout(()=> handleColorChange(currentConversation), 100)
+			
+		}
+	},[])
 
 	const [addConversation] = useMutation(ADD_CONVERSATION)
 	
@@ -35,6 +43,7 @@ const Message = (props)=>{
 		const targetId = target.getAttribute('data-id')
 		handleColorChange(targetId)
 		setCurrentChat(targetId)
+		localStorage.setItem('currentConversation',targetId)
 	}
 
 	const handleColorChange = (id)=>{
